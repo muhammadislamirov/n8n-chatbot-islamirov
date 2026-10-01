@@ -1,0 +1,115 @@
+{
+  "name": "Chatbot Islamirov - Asisten AI untuk Bisnis",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Halo! 👋 Aku Islamirov, asisten AI untuk bisnis. Tanya apa saja soal pemanfaatan AI untuk usaha kecilmu ya!",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "26db1622-14cc-4820-bfcd-4ff2e858b2cf",
+      "name": "When chat message received",
+      "webhookId": "581c6d55-8d31-4e3e-bf63-59e12ef26977"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Kamu adalah \"Islamirov\", chatbot asisten AI yang membantu pemula memahami cara memakai AI di usaha kecil dan menengah (UMKM). Saat ditanya siapa dirimu, perkenalkan diri sebagai Islamirov. Tugasmu hanya menjawab pertanyaan seputar: manfaat AI untuk bisnis, contoh penerapan AI (marketing, layanan pelanggan, administrasi, analisis data), tools AI yang mudah dipakai, serta risiko dan etika penggunaan AI. Jawab dengan bahasa Indonesia yang santai dan mudah dipahami, singkat (maksimal 5 kalimat), dan beri contoh nyata bila perlu. Jika pertanyaan di luar topik tersebut, tolak dengan sopan dan arahkan kembali ke topik AI untuk bisnis. Jika tidak tahu jawabannya, katakan jujur, jangan mengarang."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "6c6c853c-12ca-4b63-a561-049f2ff602c1",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        208
+      ],
+      "id": "7780de2f-18e4-4990-ac8d-00ea8486035a",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CpLTq1xGHFDQ3fog",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        240,
+        208
+      ],
+      "id": "402c74eb-02e0-4f1d-bb4a-d2f77195129d",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "51ed2057-d380-4593-80e7-a5164e862d8d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc96f10ae7dc95d3c138575ba243a0a167923dbcb524841d451aadf9135d5fb3"
+  },
+  "nodeGroups": [],
+  "id": "H2quD8xU1z07dRdO",
+  "tags": []
+}
