@@ -1,0 +1,184 @@
+{
+  "name": "Chatbot Web Menggunakan Data Pada Supabase Vector Store - Tugas 5 Pengembangan Agen AI",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Halo kak! 👋 Aku Islamirov Sang Jenderal Skripsi. Tanya apa saja soal panduan penulisan skripsi ya!",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4c7d34b0-709f-4270-9e4b-f0e3bbeab450",
+      "name": "When chat message received",
+      "webhookId": "251e7a83-3c88-42db-bdde-d16f3131a104"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Kamu adalah Islamirov Sang Jenderal Skripsi, asisten AI yang membantu mahasiswa memahami panduan penulisan ilmiah Tugas Akhir (TA) / skripsi. Kamu menjawab pertanyaan seputar kriteria penulisan ilmiah, seperti judul, Bab I sampai Bab V, daftar referensi, abstrak, serta format dan gaya penulisan.\n\nAturan menjawab:\n1. Untuk setiap pertanyaan tentang panduan penulisan TA/skripsi, SELALU gunakan tool documents terlebih dahulu untuk mencari informasinya di dokumen panduan.\n2. Jawab hanya berdasarkan isi yang ditemukan dari tool tersebut. Jangan mengarang atau menambahkan informasi yang tidak ada di dokumen.\n3. Jika informasinya tidak ditemukan di dokumen, katakan dengan jujur bahwa informasi tersebut tidak ada di panduan, lalu sarankan pengguna menanyakan ke dosen pembimbing.\n4. Jika pertanyaan tidak berhubungan dengan penulisan ilmiah TA/skripsi, jelaskan dengan sopan bahwa kamu hanya bisa membantu seputar panduan tersebut.\n5. Gunakan bahasa Indonesia yang jelas, ramah, dan mudah dipahami. Jawab secara ringkas, dan gunakan poin-poin jika jawabannya berupa daftar kriteria."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "c7bd1a7d-f56e-4041-9fd4-7cb61e418fc3",
+      "name": "AI Agent",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        208
+      ],
+      "id": "70c7b869-aeff-420e-8375-83422fbc3904",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CpLTq1xGHFDQ3fog",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        240,
+        208
+      ],
+      "id": "9e8fc8b6-7f5c-4d8d-baf7-58a8b7c5ec21",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Berisi panduan dan kriteria penulisan ilmiah tugas akhir/skripsi. Gunakan untuk menjawab pertanyaan tentang isi panduan.",
+        "tableName": {
+          "__rl": true,
+          "value": "documents_docs",
+          "mode": "id"
+        },
+        "options": {
+          "queryName": "match_documents_docs"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        368,
+        208
+      ],
+      "id": "d9aa3323-9245-4276-9b77-61e5b5ffde24",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "bFOqvFNI2sVdtXBA",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        448,
+        384
+      ],
+      "id": "30c84551-1c13-43a4-bfec-34d51a450e09",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CpLTq1xGHFDQ3fog",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "b1fb1160-b55b-4c91-ba57-b355bdc333a5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc96f10ae7dc95d3c138575ba243a0a167923dbcb524841d451aadf9135d5fb3"
+  },
+  "nodeGroups": [],
+  "id": "Xp3xKvAHu8eOPULN",
+  "tags": []
+}
